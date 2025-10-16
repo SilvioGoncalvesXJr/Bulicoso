@@ -1,6 +1,3 @@
-# Projeto para a cadeira de Extensão 3
-
-
 # Buliçoso | Seu Assistente de Saúde Inteligente
 Buliçoso é um projeto para a cadeira de Extensão 3 com o intuíto de desenvolver um Produto Mínimo Viável (MVP) que utiliza Large Language Model (LLM) e Geração Aumentada por Recuperação (RAG) para transformar o cuidado com a medicação, tornando-o simples e seguro para todos, com foco especial no público sênior.
 
