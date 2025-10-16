@@ -1,0 +1,24 @@
+# Dependências gerais
+python-dotenv
+
+# LangChain core e módulos
+langchain
+langchain-core
+langchain-community
+langchain-chroma
+langchain-google-genai
+
+# ChromaDB para vetorização
+chromadb
+
+# PDF processing
+pypdf
+
+# FastAPI e LangServe para API de tradução
+fastapi
+uvicorn
+langserve
+
+# Dependências adicionais do FastAPI/LangServe
+httpx
+pydantic
