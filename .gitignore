@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🧠 Python
 __pycache__/
 *.pyc
@@ -36,3 +37,6 @@ dist/
 # 🔍 Configurações específicas
 *.bak
 *.old
+=======
+.env
+>>>>>>> 7a3ece481cc6d91d2062a1f4f3def45a682da283
