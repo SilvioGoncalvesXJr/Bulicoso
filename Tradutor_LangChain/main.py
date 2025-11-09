@@ -13,7 +13,7 @@ if not google_api_key:
     raise RuntimeError("GOOGLE_API_KEY não encontrada no ambiente (.env)")
 
 model = ChatGoogleGenerativeAI(
-    model="gemini-1.5-flash",
+    model="gemini-2.5-flash",
     google_api_key=google_api_key,
 )
 
