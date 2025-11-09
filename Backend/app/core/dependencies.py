@@ -1,30 +1,34 @@
 """
-Dependências compartilhadas para injeção no FastAPI
+Dependências globais da aplicação.
+
+Este módulo gerencia instâncias compartilhadas que devem ser
+reutilizadas em toda a aplicação, como:
+- Cliente ChromaDB
+- Cliente Google API
+- Instâncias de serviços
 """
+
 from functools import lru_cache
-from app.core.config import settings
-from app.services.rag_service import RAGService
-from app.services.calendar_service import CalendarService
+from app.db.chroma_client import get_chroma_client
+from app.core.logger import setup_logger
+
+logger = setup_logger()
 
 
 @lru_cache()
-def get_rag_service() -> RAGService:
-    """Retorna instância singleton do RAGService"""
-    return RAGService(
-        chroma_db_dir=settings.CHROMA_DB_DIR,
-        collection_name=settings.CHROMA_COLLECTION_NAME,
-        embedding_model=settings.EMBEDDING_MODEL,
-        google_api_key=settings.GOOGLE_API_KEY,
-        gemini_model=settings.GEMINI_MODEL,
-        temperature=settings.GEMINI_TEMPERATURE
-    )
+def get_chroma_dependency():
+    """
+    Retorna a instância do cliente ChromaDB (singleton).
+    
+    Esta função usa lru_cache para garantir que apenas uma
+    instância seja criada e reutilizada.
+    """
+    logger.info("Inicializando cliente ChromaDB...")
+    return get_chroma_client()
 
 
-@lru_cache()
-def get_calendar_service() -> CalendarService:
-    """Retorna instância singleton do CalendarService"""
-    return CalendarService(
-        credentials_path=settings.GOOGLE_CALENDAR_CREDENTIALS_PATH,
-        calendar_id=settings.GOOGLE_CALENDAR_ID
-    )
+# Outras dependências podem ser adicionadas aqui:
+# - get_google_client()
+# - get_llm_instance()
+# etc.
 
