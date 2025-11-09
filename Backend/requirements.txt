@@ -1,0 +1,27 @@
+# FastAPI e servidor
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+
+# LangChain e RAG
+langchain==0.1.0
+langchain-community==0.0.13
+langchain-google-genai==0.0.6
+langchain-huggingface==0.0.1
+
+# Embeddings e Vector Store
+sentence-transformers==2.3.1
+chromadb==0.4.22
+
+# PDF Processing
+pypdf==4.0.1
+
+# Google APIs (para lembretes)
+google-api-python-client==2.108.0
+google-auth-httplib2==0.2.0
+google-auth-oauthlib==1.2.0
+
+# Utilitários
+python-dotenv==1.0.0
+
