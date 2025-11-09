@@ -1,133 +1,159 @@
 """
-Serviço de RAG (Retrieval Augmented Generation) para consulta de bulas
+🔹 SERVIÇO RAG - Pipeline de Recuperação e Geração Aumentada
+
+Este é o núcleo de IA do sistema. Implementa o pipeline RAG completo:
+
+1. Busca contexto relevante no ChromaDB (vetorização)
+2. Recupera chunks relacionados ao medicamento
+3. Envia contexto + prompt ao Gemini API
+4. Retorna texto simplificado e acessível
+
+IMPLEMENTAÇÃO NECESSÁRIA:
+- Configurar LangChain retriever com ChromaDB
+- Implementar busca semântica de chunks
+- Criar prompts otimizados para simplificação
+- Integrar com Gemini API via LangChain
+- Tratamento de erros e fallback para web scraping
 """
-import time
+
 from typing import Optional
 from langchain_community.vectorstores import Chroma
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from langchain.chains import RetrievalQA
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain.prompts import PromptTemplate
+from app.core.config import settings
+from app.core.logger import setup_logger
+from app.services.scraper_service import ScraperService
+
+logger = setup_logger()
 
 
 class RAGService:
-    """Serviço para consulta de bulas usando RAG"""
+    """
+    Serviço RAG para simplificação de bulas de medicamentos.
     
-    def __init__(
-        self,
-        chroma_db_dir: str,
-        collection_name: str,
-        embedding_model: str,
-        google_api_key: str,
-        gemini_model: str,
-        temperature: float = 0.0
-    ):
+    Responsabilidades:
+    - Buscar bulas no ChromaDB
+    - Recuperar contexto relevante
+    - Gerar texto simplificado via Gemini
+    """
+    
+    def __init__(self, chroma_client=None):
         """
-        Inicializa o serviço RAG
+        Inicializa o serviço RAG.
         
         Args:
-            chroma_db_dir: Diretório do ChromaDB
-            collection_name: Nome da coleção no ChromaDB
-            embedding_model: Nome do modelo de embeddings
-            google_api_key: Chave da API do Google Gemini
-            gemini_model: Modelo do Gemini a ser usado
-            temperature: Temperatura do modelo (0.0 para respostas mais determinísticas)
+            chroma_client: Cliente ChromaDB (opcional)
         """
-        self.chroma_db_dir = chroma_db_dir
-        self.collection_name = collection_name
-        self.embedding_model = embedding_model
+        self.chroma_client = chroma_client
+        self.scraper_service = ScraperService()
         
-        # Inicializar embeddings
-        print(f"[RAG] Carregando modelo de embeddings: {embedding_model}")
-        self.embeddings = HuggingFaceEmbeddings(model_name=embedding_model)
+        # TODO: Inicializar LangChain components
+        # - Vector store (Chroma)
+        # - LLM (ChatGoogleGenerativeAI)
+        # - Retriever
+        # - Chain (RetrievalQA)
         
-        # Conectar ao ChromaDB
-        print(f"[RAG] Conectando ao ChromaDB em: {chroma_db_dir}")
-        self.vectordb = Chroma(
-            persist_directory=chroma_db_dir,
-            embedding_function=self.embeddings,
-            collection_name=collection_name
-        )
-        
-        # Inicializar LLM
-        print(f"[RAG] Inicializando Gemini: {gemini_model}")
-        self.llm = ChatGoogleGenerativeAI(
-            model=gemini_model,
-            temperature=temperature,
-            google_api_key=google_api_key
-        )
-        
-        # Criar retriever e chain
-        self.retriever = self.vectordb.as_retriever(search_kwargs={"k": 3})
-        self.qa_chain = RetrievalQA.from_chain_type(
-            llm=self.llm,
-            retriever=self.retriever,
-            return_source_documents=True
-        )
-        
-        print("[RAG] Serviço inicializado com sucesso!")
+        logger.info("RAGService inicializado")
     
-    def consultar_bula(
-        self,
-        medicamento: str,
-        pergunta: Optional[str] = None
-    ) -> tuple[str, float, str]:
+    
+    async def simplify_medication_info(self, medication_name: str) -> str:
         """
-        Consulta informações sobre um medicamento
+        🔹 IMPLEMENTAR: Simplifica a bula de um medicamento.
+        
+        Fluxo:
+        1. Buscar no ChromaDB usando embedding do nome do medicamento
+        2. Se não encontrar, buscar na web via scraper_service
+        3. Recuperar chunks relevantes (top-k)
+        4. Construir prompt com contexto + instruções de simplificação
+        5. Chamar Gemini API para gerar texto simplificado
+        6. Retornar resultado
         
         Args:
-            medicamento: Nome do medicamento
-            pergunta: Pergunta específica (opcional)
+            medication_name: Nome do medicamento
             
         Returns:
-            Tupla com (resposta, tempo_resposta, fonte)
+            Texto simplificado da bula
         """
-        # Construir query
-        if pergunta:
-            query = f"Medicamento: {medicamento}. {pergunta}"
-        else:
-            query = f"Informações sobre o medicamento {medicamento}. Inclua dosagem, efeitos colaterais e modo de uso de forma simples e clara."
+        logger.info(f"Simplificando bula para: {medication_name}")
         
-        # Executar consulta
-        start_time = time.time()
         try:
-            result = self.qa_chain.invoke({"query": query})
-            resposta = result["result"]
-            fonte = "Base Curada"
+            # TODO: Passo 1 - Buscar no ChromaDB
+            # vector_store = Chroma(
+            #     client=self.chroma_client,
+            #     collection_name=settings.CHROMA_COLLECTION_NAME,
+            #     embedding_function=embedding_function
+            # )
+            # retriever = vector_store.as_retriever(search_kwargs={"k": 5})
+            # docs = retriever.get_relevant_documents(medication_name)
             
-            # Verificar se há documentos recuperados
-            if result.get("source_documents"):
-                fonte = "Base Curada"
-            else:
-                fonte = "Base Curada (sem documentos encontrados)"
-                
+            # TODO: Passo 2 - Se não encontrar, buscar na web
+            # if not docs:
+            #     logger.info("Bula não encontrada no ChromaDB, buscando na web...")
+            #     web_content = await self.scraper_service.fetch_medication_info(medication_name)
+            #     # Vetorizar e adicionar ao ChromaDB para próximas buscas
+            #     # await vector_service.add_document(medication_name, web_content)
+            
+            # TODO: Passo 3 - Construir prompt de simplificação
+            # prompt_template = PromptTemplate(
+            #     input_variables=["context", "medication_name"],
+            #     template="""
+            #     Você é um assistente especializado em simplificar bulas de medicamentos
+            #     para idosos. Simplifique o seguinte texto técnico, tornando-o claro e
+            #     acessível, mantendo informações essenciais sobre:
+            #     - Para que serve
+            #     - Como tomar
+            #     - Cuidados e efeitos colaterais importantes
+            #     - Quando não tomar
+            #     
+            #     Medicamento: {medication_name}
+            #     Bula original: {context}
+            #     
+            #     Texto simplificado:
+            #     """
+            # )
+            
+            # TODO: Passo 4 - Chamar Gemini API
+            # llm = ChatGoogleGenerativeAI(
+            #     model=settings.LLM_MODEL,
+            #     google_api_key=settings.GOOGLE_API_KEY,
+            #     temperature=0.7
+            # )
+            # chain = RetrievalQA.from_chain_type(
+            #     llm=llm,
+            #     chain_type="stuff",
+            #     retriever=retriever,
+            #     return_source_documents=True
+            # )
+            # result = chain({"query": f"Simplifique a bula de {medication_name}"})
+            
+            # Por enquanto, retorna placeholder
+            return f"""
+            [IMPLEMENTAR] Bula simplificada para {medication_name}
+            
+            Esta função deve:
+            1. Buscar a bula no ChromaDB
+            2. Se não encontrar, buscar na web
+            3. Usar LangChain + Gemini para simplificar
+            4. Retornar texto acessível
+            """
+            
         except Exception as e:
-            resposta = f"Erro ao consultar a bula: {str(e)}"
-            fonte = "Erro"
-        
-        tempo_resposta = time.time() - start_time
-        
-        return resposta, tempo_resposta, fonte
+            logger.error(f"Erro no RAG service: {str(e)}")
+            raise
     
-    def buscar_medicamento(self, medicamento: str) -> list[dict]:
+    
+    async def search_medication_context(self, medication_name: str, top_k: int = 5):
         """
-        Busca documentos relacionados ao medicamento (sem LLM)
+        🔹 IMPLEMENTAR: Busca contexto relevante sobre um medicamento.
         
         Args:
-            medicamento: Nome do medicamento
+            medication_name: Nome do medicamento
+            top_k: Número de chunks a retornar
             
         Returns:
-            Lista de documentos encontrados
+            Lista de documentos relevantes
         """
-        try:
-            docs = self.vectordb.similarity_search(medicamento, k=5)
-            return [
-                {
-                    "conteudo": doc.page_content[:500],  # Primeiros 500 caracteres
-                    "metadata": doc.metadata
-                }
-                for doc in docs
-            ]
-        except Exception as e:
-            print(f"[RAG] Erro na busca: {e}")
-            return []
+        # TODO: Implementar busca semântica no ChromaDB
+        pass
 

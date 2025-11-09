@@ -1,3 +1,5 @@
-# Buliçoso Backend
-__version__ = "0.1.0"
+"""
+Backend - Sistema de Adesão Medicamentosa
+Módulo principal da aplicação FastAPI.
+"""
 

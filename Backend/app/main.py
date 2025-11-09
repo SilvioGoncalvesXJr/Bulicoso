@@ -1,17 +1,26 @@
 """
-Aplicação principal FastAPI do Buliçoso
+Aplicação principal FastAPI.
+
+Este arquivo configura e inicializa a aplicação FastAPI com:
+- CORS e middlewares
+- Routers (meds, reminders, healthcheck)
+- Documentação automática via Swagger/OpenAPI
 """
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api.v1.api import api_router
+from app.core.logger import setup_logger
+from app.api.routers import meds, reminders, healthcheck
 
-# Criar aplicação FastAPI
+# Configurar logger
+logger = setup_logger()
+
+# Criar instância da aplicação FastAPI
 app = FastAPI(
-    title=settings.PROJECT_NAME,
-    version=settings.VERSION,
-    description="API do Buliçoso - Assistente de Saúde Inteligente para Bulas e Lembretes de Medicamentos",
-    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    title="Sistema de Adesão Medicamentosa",
+    description="API para gerenciamento de lembretes de medicação e simplificação de bulas",
+    version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
 )
@@ -26,36 +35,20 @@ app.add_middleware(
 )
 
 # Incluir routers
-app.include_router(api_router, prefix=settings.API_V1_STR)
+app.include_router(healthcheck.router, tags=["Health"])
+app.include_router(meds.router, prefix="/api/meds", tags=["Medications"])
+app.include_router(reminders.router, prefix="/api/reminders", tags=["Reminders"])
 
 
-@app.get("/")
-async def root():
-    """Endpoint raiz"""
-    return {
-        "message": "Buliçoso API - Seu Assistente de Saúde Inteligente",
-        "version": settings.VERSION,
-        "docs": "/docs",
-        "health": "/health"
-    }
+@app.on_event("startup")
+async def startup_event():
+    """Evento executado na inicialização da aplicação."""
+    logger.info("🚀 Sistema de Adesão Medicamentosa iniciado")
+    logger.info(f"📚 Documentação disponível em: http://localhost:8000/docs")
 
 
-@app.get("/health")
-async def health_check():
-    """Health check endpoint"""
-    return {
-        "status": "healthy",
-        "service": settings.PROJECT_NAME,
-        "version": settings.VERSION
-    }
-
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(
-        "app.main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True
-    )
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Evento executado no encerramento da aplicação."""
+    logger.info("🛑 Sistema de Adesão Medicamentosa encerrado")
 

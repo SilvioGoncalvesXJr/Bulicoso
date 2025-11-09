@@ -1,2 +1,4 @@
-# API module
+"""
+Módulo de API - Routers e endpoints.
+"""
 
