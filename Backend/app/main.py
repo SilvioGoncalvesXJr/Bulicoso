@@ -1,54 +1,219 @@
-"""
-Aplicação principal FastAPI.
+# main.py
+import os
+import uvicorn
+from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException, Body, Depends
+from pydantic import BaseModel, Field
+from typing import List, Optional, Dict, Any
+from contextlib import asynccontextmanager
+from langchain_google_genai import ChatGoogleGenerativeAI
+# NOSSOS MÓDULOS
+from google_calendar_auth import get_calendar_service
+from modules.rag_manager import RAGManager
+from modules.intent_classifier import classify_intent, IntentResponse
+import modules.calendar_manager as calendar  # Importa o módulo todo
 
-Este arquivo configura e inicializa a aplicação FastAPI com:
-- CORS e middlewares
-- Routers (meds, reminders, healthcheck)
-- Documentação automática via Swagger/OpenAPI
-"""
+# Carregar .env
+load_dotenv(".env", override=True)
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from app.core.config import settings
-from app.core.logger import setup_logger
-from app.api.routers import meds, reminders, healthcheck
+if not GOOGLE_API_KEY:
+    raise ValueError("GOOGLE_API_KEY não encontrada no .env!")
 
-# Configurar logger
-logger = setup_logger()
+# Estado global da aplicação
+app_state: Dict[str, Any] = {}
 
-# Criar instância da aplicação FastAPI
+
+# --- Gerenciamento do Ciclo de Vida (Startup/Shutdown) ---
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Ao iniciar
+    print("--- 🚀 Iniciando API ---")
+
+    # 1. Carregar LLM principal (para Classificador e Parser)
+    print("[INIT] Carregando LLM principal (Gemini Flash)...")
+    llm = ChatGoogleGenerativeAI(
+        model="gemini-2.5-flash",
+        temperature=0.5,
+        google_api_key=GOOGLE_API_KEY
+    )
+    app_state["llm"] = llm
+
+    # 2. Carregar Módulo RAG
+    print("[INIT] Carregando RAG Manager...")
+    app_state["rag_manager"] = RAGManager(google_api_key=GOOGLE_API_KEY)
+
+    # 3. Carregar Módulo Calendar
+    print("[INIT] Autenticando no Google Calendar...")
+    app_state["calendar_service"] = get_calendar_service()
+
+    print("--- ✅ API Pronta ---")
+    yield
+    # Ao desligar
+    print("--- 🛑 Encerrando API ---")
+    app_state.clear()
+
+
+# --- Funções "Depends" para Injeção ---
+# Isso é uma boa prática em FastAPI para obter os serviços
+def get_llm():
+    return app_state["llm"]
+
+
+def get_rag_manager():
+    return app_state["rag_manager"]
+
+
+def get_calendar_service_dep():
+    return app_state["calendar_service"]
+
+
+# --- Inicialização do FastAPI ---
 app = FastAPI(
-    title="Sistema de Adesão Medicamentosa",
-    description="API para gerenciamento de lembretes de medicação e simplificação de bulas",
-    version="1.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc"
+    title="Assistente de Medicação API",
+    description="API modular com RAG e Google Calendar.",
+    lifespan=lifespan
 )
 
-# Configurar CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
-# Incluir routers
-app.include_router(healthcheck.router, tags=["Health"])
-app.include_router(meds.router, prefix="/api/meds", tags=["Medications"])
-app.include_router(reminders.router, prefix="/api/reminders", tags=["Reminders"])
+# --- Modelos Pydantic (para os corpos das requisições) ---
+class ChatQuery(BaseModel):
+    query: str = Field(..., example="Quais as reações da Dipirona?")
 
 
-@app.on_event("startup")
-async def startup_event():
-    """Evento executado na inicialização da aplicação."""
-    logger.info("🚀 Sistema de Adesão Medicamentosa iniciado")
-    logger.info(f"📚 Documentação disponível em: http://localhost:8000/docs")
+class ScheduleRequest(BaseModel):
+    instrucao: str = Field(..., example="Dipirona de 8 em 8 horas por 5 dias")
+    start_time_str: str = Field(..., example="agora")
 
 
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Evento executado no encerramento da aplicação."""
-    logger.info("🛑 Sistema de Adesão Medicamentosa encerrado")
+class DeleteRequest(BaseModel):
+    event_ids: List[str] = Field(..., description="Lista de IDs de eventos para deletar.")
 
+
+class EditRequest(BaseModel):
+    new_start_time_str: str = Field(..., example="25/12/2025 10:00")
+
+
+# === ENDPOINTS DA API ===
+
+@app.post("/v1/chat/classify_intent", response_model=IntentResponse, summary="1. Classificar Intenção do Usuário")
+async def handle_chat_query(
+        query: ChatQuery,
+        llm: ChatGoogleGenerativeAI = Depends(get_llm)
+):
+    """
+    Recebe a query de chat do usuário.
+    Usa o LLM para classificar a intenção e extrair entidades.
+    O Frontend usa essa resposta para decidir o que fazer a seguir.
+    """
+    intent_data = classify_intent(query.query, llm)
+    return intent_data
+
+
+# --- Endpoints do RAG ---
+
+@app.get("/v1/rag/{medicamento}", summary="2. Executar consulta RAG")
+async def get_rag_info(
+        medicamento: str,
+        topic: str = "reações adversas",  # O frontend pode forçar o tópico
+        rag_manager: RAGManager = Depends(get_rag_manager)
+):
+    """
+    Endpoint direto para o RAG. O 'topic' é verificado pelo guardrail.
+    """
+    if not medicamento:
+        raise HTTPException(status_code=400, detail="Nome do medicamento é obrigatório.")
+
+    result = rag_manager.query(medicamento, topic)
+    if "error" in result:
+        raise HTTPException(status_code=500, detail=result["error"])
+    return result
+
+
+# --- Endpoints do CALENDAR (Agendamento) ---
+
+@app.post("/v1/calendar/schedule", summary="3. Agendar novo tratamento")
+async def schedule_treatment(
+        request: ScheduleRequest,
+        llm: ChatGoogleGenerativeAI = Depends(get_llm),
+        service=Depends(get_calendar_service_dep)
+):
+    """
+    Recebe uma prescrição e uma data. Parseia e cria os eventos.
+    """
+    # 1. Parsear instrução
+    details = calendar.parse_instruction(request.instrucao, llm)
+    if not details:
+        raise HTTPException(status_code=400, detail="Não foi possível entender a prescrição.")
+
+    # 2. Validar data de início
+    start_time = calendar.get_start_time_from_string(request.start_time_str)
+    if not start_time:
+        raise HTTPException(status_code=400, detail="Formato de data inválido. Use 'agora' ou 'DD/MM/AAAA HH:MM'.")
+
+    # 3. Criar eventos
+    try:
+        result = calendar.create_calendar_events(service, details, start_time)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao criar eventos: {e}")
+
+
+# --- Endpoints do CALENDAR (Leitura e Remoção) ---
+
+@app.get("/v1/calendar/events/{medicamento_nome}", summary="4. Listar eventos futuros")
+async def get_future_events(
+        medicamento_nome: str,
+        service=Depends(get_calendar_service_dep)
+):
+    """
+    Busca e retorna todos os eventos futuros para um medicamento.
+    O Frontend usa isso para mostrar a lista de "qual você quer editar/cancelar?".
+    """
+    events = calendar.find_future_events_by_name(service, medicamento_nome)
+    return {"medicamento": medicamento_nome, "events": events}
+
+
+@app.post("/v1/calendar/delete", summary="5. Cancelar eventos (um ou 'todos')")
+async def delete_calendar_events(
+        request: DeleteRequest,
+        service=Depends(get_calendar_service_dep)
+):
+    """
+    Deleta uma lista de eventos.
+    Para deletar 'todos', o frontend deve primeiro chamar /events/ e depois mandar todos os IDs.
+    """
+    if not request.event_ids:
+        raise HTTPException(status_code=400, detail="Nenhum ID de evento fornecido.")
+
+    result = calendar.delete_events(service, request.event_ids)
+    return result
+
+
+# --- Endpoints do CALENDAR (Edição) ---
+
+@app.put("/v1/calendar/edit/{event_id}", summary="6. Editar um evento")
+async def edit_calendar_event(
+        event_id: str,
+        request: EditRequest,
+        service=Depends(get_calendar_service_dep)
+):
+    """
+    Altera o horário de um único evento.
+    """
+    result = calendar.edit_single_event(service, event_id, request.new_start_time_str)
+    if "error" in result:
+        raise HTTPException(status_code=400, detail=result["error"])
+    return result
+
+
+# --- Ponto de Entrada para Execução ---
+if __name__ == "__main__":
+    print("Iniciando servidor FastAPI com Uvicorn...")
+    uvicorn.run(
+        "main:app",
+        host="127.0.0.1",
+        port=8000,
+        reload=True
+    )
