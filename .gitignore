@@ -14,7 +14,7 @@ env/
 
 # 🔐 Credenciais e chaves
 .env
-./credentials.json
+./Backend/app/credentials.json
 ./token.pickle
 
 # 🧰 IDEs

@@ -3,6 +3,7 @@ import os
 import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Body, Depends
+from fastapi.middleware.cors import CORSMiddleware  # <--- [NOVO] Import crucial para o React
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from contextlib import asynccontextmanager
@@ -11,7 +12,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from google_calendar_auth import get_calendar_service
 from modules.rag_manager import RAGManager
 from modules.intent_classifier import classify_intent, IntentResponse
-import modules.calendar_manager as calendar  # Importa o módulo todo
+import modules.calendar_manager as calendar
 
 # Carregar .env
 load_dotenv(".env", override=True)
@@ -56,7 +57,6 @@ async def lifespan(app: FastAPI):
 
 
 # --- Funções "Depends" para Injeção ---
-# Isso é uma boa prática em FastAPI para obter os serviços
 def get_llm():
     return app_state["llm"]
 
@@ -76,8 +76,24 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# [NOVO] Configuração do CORS
+# Isso permite que o seu Frontend (React) converse com o Backend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Permite qualquer origem (React, Vue, etc.)
+    allow_credentials=True,
+    allow_methods=["*"],  # Permite GET, POST, OPTIONS, etc.
+    allow_headers=["*"],
+)
 
-# --- Modelos Pydantic (para os corpos das requisições) ---
+
+# --- Modelos Pydantic ---
+
+# [NOVO] Modelo para a requisição do RAG
+class RagQueryRequest(BaseModel):
+    original_query: str = Field(..., example="Quais são as reações adversas da Dipirona Sódica?")
+    topic: str = Field(..., example="reações adversas")
+
 class ChatQuery(BaseModel):
     query: str = Field(..., example="Quais as reações da Dipirona?")
 
@@ -105,7 +121,6 @@ async def handle_chat_query(
     """
     Recebe a query de chat do usuário.
     Usa o LLM para classificar a intenção e extrair entidades.
-    O Frontend usa essa resposta para decidir o que fazer a seguir.
     """
     intent_data = classify_intent(query.query, llm)
     return intent_data
@@ -113,19 +128,19 @@ async def handle_chat_query(
 
 # --- Endpoints do RAG ---
 
-@app.get("/v1/rag/{medicamento}", summary="2. Executar consulta RAG")
-async def get_rag_info(
-        medicamento: str,
-        topic: str = "reações adversas",  # O frontend pode forçar o tópico
+# [ATUALIZADO] Agora usa POST e recebe a query original + tópico
+@app.post("/v1/rag/query", summary="2. Executar consulta RAG")
+async def post_rag_query(
+        request: RagQueryRequest,
         rag_manager: RAGManager = Depends(get_rag_manager)
 ):
     """
-    Endpoint direto para o RAG. O 'topic' é verificado pelo guardrail.
+    Endpoint principal para o RAG. Recebe a query ORIGINAL do usuário
+    e o 'topic' extraído pelo classificador.
     """
-    if not medicamento:
-        raise HTTPException(status_code=400, detail="Nome do medicamento é obrigatório.")
+    # Chama a função query passando os dados corretos
+    result = rag_manager.query(request.original_query, request.topic)
 
-    result = rag_manager.query(medicamento, topic)
     if "error" in result:
         raise HTTPException(status_code=500, detail=result["error"])
     return result
@@ -142,17 +157,14 @@ async def schedule_treatment(
     """
     Recebe uma prescrição e uma data. Parseia e cria os eventos.
     """
-    # 1. Parsear instrução
     details = calendar.parse_instruction(request.instrucao, llm)
     if not details:
         raise HTTPException(status_code=400, detail="Não foi possível entender a prescrição.")
 
-    # 2. Validar data de início
     start_time = calendar.get_start_time_from_string(request.start_time_str)
     if not start_time:
-        raise HTTPException(status_code=400, detail="Formato de data inválido. Use 'agora' ou 'DD/MM/AAAA HH:MM'.")
+        raise HTTPException(status_code=400, detail="Formato de data inválido.")
 
-    # 3. Criar eventos
     try:
         result = calendar.create_calendar_events(service, details, start_time)
         return result
@@ -169,7 +181,6 @@ async def get_future_events(
 ):
     """
     Busca e retorna todos os eventos futuros para um medicamento.
-    O Frontend usa isso para mostrar a lista de "qual você quer editar/cancelar?".
     """
     events = calendar.find_future_events_by_name(service, medicamento_nome)
     return {"medicamento": medicamento_nome, "events": events}
@@ -182,7 +193,6 @@ async def delete_calendar_events(
 ):
     """
     Deleta uma lista de eventos.
-    Para deletar 'todos', o frontend deve primeiro chamar /events/ e depois mandar todos os IDs.
     """
     if not request.event_ids:
         raise HTTPException(status_code=400, detail="Nenhum ID de evento fornecido.")
