@@ -7,42 +7,35 @@ from pydantic import BaseModel, Field
 from typing import Optional
 
 
-# Definir o que esperamos do LLM
+# 1. Atualizamos o modelo para incluir 'message'
 class IntentResponse(BaseModel):
-    intent: str = Field(description="A intenção do usuário. Ex: 'schedule', 'cancel', 'edit', 'query_rag', 'unknown'")
-    medicamento: Optional[str] = Field(None, description="O nome do medicamento, se mencionado.")
-    topic: Optional[str] = Field(None, description="O tópico da pergunta (ex: 'reações adversas', 'dose')")
-    # Adicione outros campos se precisar (ex: horario)
+    intent: str = Field(description="A intenção do usuário.")
+    medicamento: Optional[str] = Field(None, description="Nome do medicamento.")
+    topic: Optional[str] = Field(None, description="Tópico da pergunta.")
+    message: str = Field(..., description="Uma resposta curta e amigável para o usuário.")
 
 
-# Prompt para o classificador
+# 2. Atualizamos o Prompt para pedir a mensagem
 INTENT_PROMPT_TEMPLATE = """
-Você é um classificador de intenções para um assistente de saúde.
-Analise o texto do usuário e retorne APENAS um objeto JSON com a estrutura:
+Você é um assistente de saúde chamado 'Bulicoso'.
+Analise o texto do usuário e retorne um JSON com a classificação e uma resposta amigável.
+
+ESTRUTURA JSON:
 {{
   "intent": "...", // 'schedule', 'cancel', 'edit', 'query_rag', 'unknown'
-  "medicamento": "...", // nome do medicamento, se houver
-  "topic": "..." // 'reações adversas' ou 'outro'
+  "medicamento": "...", // null se não houver
+  "topic": "...", // null se não houver
+  "message": "..." // Sua resposta textual para o usuário
 }}
+
+REGRAS PARA A MENSAGEM ('message'):
+- Se for 'schedule': Pergunte os detalhes (qual remédio, frequência, dias) se não foram dados, ou confirme que entendeu.
+- Se for 'cancel' ou 'edit': Diga que vai buscar os agendamentos.
+- Se for 'query_rag': Diga algo como "Vou verificar na bula para você...".
+- Se for 'unknown': Diga que não entendeu e dê exemplos do que pode fazer.
 
 TEXTO DO USUÁRIO:
 {user_query}
-
-Exemplos:
-Texto: "Quero agendar um remédio"
-JSON: {{"intent": "schedule", "medicamento": null, "topic": null}}
-
-Texto: "Quais as reações adversas da Dipirona?"
-JSON: {{"intent": "query_rag", "medicamento": "Dipirona", "topic": "reações adversas"}}
-
-Texto: "Qual a dose de Losartana?"
-JSON: {{"intent": "query_rag", "medicamento": "Losartana", "topic": "outro"}}
-
-Texto: "Cancelar minha agenda"
-JSON: {{"intent": "cancel", "medicamento": null, "topic": null}}
-
-Texto: "Oi, tudo bem?"
-JSON: {{"intent": "unknown", "medicamento": null, "topic": null}}
 
 JSON:
 """
@@ -54,29 +47,25 @@ prompt_template = PromptTemplate(
 
 
 def classify_intent(query: str, llm: ChatGoogleGenerativeAI) -> IntentResponse:
-    """Classifica a intenção do usuário usando um LLM."""
-    print(f"[Classifier] Classificando query: '{query}'")
+    print(f"[Classifier] Classificando: '{query}'")
     prompt = prompt_template.format(user_query=query)
 
     try:
         response = llm.invoke(prompt)
         content = response.content
 
-        # Limpar a resposta do LLM (remover ```json e afins)
+        # Limpeza básica do JSON
         json_match = re.search(r"\{.*\}", content, re.DOTALL)
-        if not json_match:
-            print("[Classifier ERRO] LLM não retornou JSON.")
-            return IntentResponse(intent="unknown")
+        if json_match:
+            content = json_match.group(0)
 
-        clean_json = json_match.group(0)
-        data = json.loads(clean_json)
-
-        # Validar com Pydantic
-        intent_data = IntentResponse(**data)
-        print(
-            f"[Classifier] Intenção: {intent_data.intent}, Medicamento: {intent_data.medicamento}, Tópico: {intent_data.topic}")
-        return intent_data
+        data = json.loads(content)
+        return IntentResponse(**data)
 
     except Exception as e:
-        print(f"[Classifier ERRO] Falha ao parsear: {e}")
-        return IntentResponse(intent="unknown")
+        print(f"[Classifier ERRO] {e}")
+        # Fallback de erro
+        return IntentResponse(
+            intent="unknown",
+            message="Desculpe, tive um erro interno. Pode repetir?"
+        )
