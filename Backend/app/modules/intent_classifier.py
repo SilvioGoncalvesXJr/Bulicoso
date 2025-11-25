@@ -24,7 +24,7 @@ ESTRUTURA JSON:
 {{
   "intent": "...", // 'schedule', 'cancel', 'edit', 'query_rag', 'unknown'
   "medicamento": "...", // null se não houver
-  "topic": "...", // null se não houver
+  "topic": "...", // null se não houver, tente associar a "reações adversas" se ele perguntar as reações de um medicamento, se for algo relacionado a automedicação, coloque outra coisa, ou "agendamento"
   "message": "..." // Sua resposta textual para o usuário
 }}
 
