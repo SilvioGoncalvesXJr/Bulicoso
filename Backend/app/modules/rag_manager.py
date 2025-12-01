@@ -14,7 +14,7 @@ import json
 DB_DIR = "./chroma_bulas_local"
 COLLECTION_NAME = "bulas_local"
 RAG_TOP_K = 5
-MIN_CONFIDENCE_THRESHOLD = 0.6
+MIN_CONFIDENCE_THRESHOLD = 0.55
 
 # Seu template de prompt RAG
 RAG_PROMPT_TEMPLATE = """
@@ -131,6 +131,13 @@ class RAGManager:
                 resp = self.llm_rag.invoke(fallback_prompt)
                 raw_text = resp.content
 
+                # Limpar markdown code blocks se houver
+                raw_text = raw_text.strip()
+                if raw_text.startswith("```"):
+                    # Remove primeira linha (```json) e última (```)
+                    raw_text = re.sub(r"^```[a-zA-Z]*\n", "", raw_text)
+                    raw_text = re.sub(r"\n```$", "", raw_text)
+                
                 # Tentar limpar a resposta do LLM para garantir que é só o JSON
                 json_match = re.search(r"\{.*\}", raw_text, re.DOTALL)
                 if json_match:
@@ -155,8 +162,32 @@ class RAGManager:
                 prompt = self.prompt_template.format(context_chunks=context_str, question=query)
                 resp = self.llm_rag.invoke(prompt)
                 raw_text = resp.content
-                # A 'confidence' já foi calculada acima (self._compute_confidence)
-                # e será retornada no final.
+                
+                # Limpar markdown code blocks se houver
+                raw_text = raw_text.strip()
+                if raw_text.startswith("```"):
+                    raw_text = re.sub(r"^```[a-zA-Z]*\n", "", raw_text)
+                    raw_text = re.sub(r"\n```$", "", raw_text)
+
+                # Injetar a confiança calculada (RAG score) no JSON de resposta
+                try:
+                    # Tenta encontrar o JSON na string (caso haja texto antes/depois)
+                    json_match = re.search(r"\{.*\}", raw_text, re.DOTALL)
+                    if json_match:
+                        clean_json_str = json_match.group(0)
+                        response_json = json.loads(clean_json_str)
+                        response_json["confidence"] = confidence # Sobrescreve com a confiança do RAG
+                        raw_text = json.dumps(response_json, ensure_ascii=False)
+                    else:
+                        # Se não achar JSON, tenta parsear tudo ou mantém como está
+                        response_json = json.loads(raw_text)
+                        response_json["confidence"] = confidence
+                        raw_text = json.dumps(response_json, ensure_ascii=False)
+                except Exception as json_err:
+                    print(f"[RAG AVISO] Falha ao injetar confiança no JSON: {json_err}")
+                    # Se falhar o parse, mantemos o raw_text original do LLM, 
+                    # mas a confiança externa (do return) estará correta.
+
             except Exception as e:
                 raw_text = json.dumps({"answer": f"Erro no RAG: {e}", "confidence": 0.0})
                 confidence = 0.0  # Sobrescreve a confiança em caso de erro
@@ -169,3 +200,14 @@ class RAGManager:
         # e é executado após o 'if' ou o 'else' terminarem.
         elapsed = round(time.time() - start_time, 2)
         return {"query": query, "response": raw_text, "confidence": confidence, "time_sec": elapsed}
+
+if __name__ == "__main__":
+    load_dotenv()
+    api_key = os.getenv("GOOGLE_API_KEY")
+    if not api_key:
+        print("Erro: GOOGLE_API_KEY não encontrada no .env")
+    else:
+        rag = RAGManager(google_api_key=api_key)
+        # Teste com um medicamento comum
+        result = rag.query("CLORIDRATO DE IMIPRAMINA", "reações adversas")
+        print(json.dumps(result, indent=2, ensure_ascii=False))
