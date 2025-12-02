@@ -218,6 +218,61 @@ async def edit_calendar_event(
     return result
 
 
+@app.get("/auth/login", summary="Forçar Login no Google Calendar")
+async def login_google():
+    """
+    1. Apaga o token antigo (se existir) para forçar o login.
+    2. Inicia o fluxo de autenticação (abre o navegador).
+    3. Atualiza o serviço na API.
+    """
+    print("[AUTH] Iniciando fluxo de Login manual...")
+
+    # 1. Remove token antigo para garantir que a janela abra
+    if os.path.exists("token.json"):
+        os.remove("token.json")
+        print("[AUTH] Token antigo removido.")
+
+    # 2. Chama a função de autenticação (Isso vai travar a API até você logar no browser)
+    try:
+        new_service = get_calendar_service()
+
+        if new_service:
+            # 3. Atualiza o estado global da aplicação
+            app_state["calendar_service"] = new_service
+            return {"message": "Autenticação realizada com sucesso! O token foi salvo."}
+        else:
+            raise HTTPException(status_code=500, detail="Falha ao obter serviço do Google.")
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro durante o login: {e}")
+
+
+@app.post("/auth/logout", summary="Fazer Logout (Apagar Token)")
+async def logout_google():
+    """
+    1. Limpa o serviço da memória da API.
+    2. Apaga o arquivo 'token.json' do disco.
+    """
+    print("[AUTH] Realizando Logout...")
+
+    # 1. Limpa da memória
+    app_state["calendar_service"] = None
+
+    # 2. Apaga do disco
+    deleted = False
+    if os.path.exists("token.pickle"):
+        os.remove("token.pickle")
+        deleted = True
+        print("[AUTH] Arquivo token.pickle apagado.")
+    else:
+        print("[AUTH] Arquivo token.pickle não encontrado (já estava deslogado).")
+
+    return {
+        "message": "Logout realizado com sucesso.",
+        "token_deleted": deleted,
+        "info": "Para acessar o calendário novamente, você precisará fazer login."
+    }
+
 # --- Ponto de Entrada para Execução ---
 if __name__ == "__main__":
     print("Iniciando servidor FastAPI com Uvicorn...")
