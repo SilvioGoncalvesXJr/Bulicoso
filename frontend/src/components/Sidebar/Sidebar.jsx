@@ -29,20 +29,20 @@ export default function Sidebar() {
       <div className="section">
         <h3 className="section-title">EXEMPLOS DE USO</h3>
         <ul className="list">
-          <li>Exemplo 01</li>
-          <li>Exemplo 02</li>
-          <li>Exemplo 03</li>
-          <li>Exemplo 04</li>
+          <li>Consultar Bula</li>
+          <li>Agendar Medicamento</li>
+          <li>Editar Medicamento</li>
+          <li>Deletar Medicamento</li>
         </ul>
       </div>
 
       <div className="section">
         <h3 className="section-title">HISTÓRICO DE CONVERSA</h3>
         <ul className="list">
-          <li>Chat 01</li>
-          <li>Chat 01</li>
-          <li>Chat 01</li>
-          <li>Chat 01</li>
+          <li>Quero agendar dipirona</li>
+          <li>Edite a medicação de dipirona</li>
+          <li>Quero saber as contraindicações desse remédio</li>
+          <li>Edite o horário da dipirona</li>
         </ul>
       </div>
 
