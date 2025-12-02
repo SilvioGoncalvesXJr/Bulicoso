@@ -228,8 +228,8 @@ async def login_google():
     print("[AUTH] Iniciando fluxo de Login manual...")
 
     # 1. Remove token antigo para garantir que a janela abra
-    if os.path.exists("token.json"):
-        os.remove("token.json")
+    if os.path.exists("token.pickle"):
+        os.remove("token.pickle")
         print("[AUTH] Token antigo removido.")
 
     # 2. Chama a função de autenticação (Isso vai travar a API até você logar no browser)
