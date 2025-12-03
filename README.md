@@ -135,7 +135,6 @@ Extensao-3/
 │   │   ├── core/           # Configurações
 │   │   ├── services/       # Lógica de Negócio (RAG, Calendar)
 │   │   └── ...
-│   ├── Dockerfile
 │   └── requirements.txt
 ├── frontend/               # Interface do Usuário
 │   ├── src/
