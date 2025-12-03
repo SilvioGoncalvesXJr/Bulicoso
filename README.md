@@ -8,6 +8,18 @@ Utilizando o poder da Inteligência Artificial Generativa (**Google Gemini**) e 
 
 ---
 
+## 👥 Time de Desenvolvimento
+
+Projeto desenvolvido por alunos da disciplina de Extensão 3:
+
+*   **[Esterfane Camelo Cardoso]** - *[FrontEnd]*
+*   **[Italo Vicente]** - *[Backend]*
+*   **[Pedro Henrique Nonato]** - *[QA]*
+*   **[Samuel Valente]** - *[UI/UX]*
+*   **[Silvio Gonçalves]** - *[Backend, Gerente de Projeto]*
+
+---
+
 ## ✨ Funcionalidades Principais
 
 ### 1. 📖 Simplificação de Bulas (RAG Híbrido)
@@ -142,20 +154,6 @@ Extensao-3/
 │   └── ...
 └── README.md               # Documentação Principal
 ```
-
----
-
-## 👥 Time de Desenvolvimento
-
-Projeto desenvolvido por alunos da disciplina de Extensão 3:
-
-*   **[Esterfane Camelo Cardoso]** - *[FrontEnd]*
-*   **[Italo Vicente]** - *[Backend]*
-*   **[Pedro Henrique Nonato]** - *[QA]*
-*   **[Samuel Valente]** - *[UI/UX]*
-*   **[Silvio Gonçalves]** - *[Backend, Gerente de Projeto]*
-
----
 
 ## 🤝 Contribuição
 
