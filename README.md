@@ -30,14 +30,14 @@ O projeto é dividido em dois componentes principais: um Backend robusto em Pyth
 
 ```mermaid
 graph TD
-    User[Usuário] -->|Interage| Frontend[Frontend (React + Vite)]
-    Frontend -->|Requisições HTTP| Backend[Backend (FastAPI)]
+    User[Usuário] -->|Interage| Frontend["Frontend (React + Vite)"]
+    Frontend -->|Requisições HTTP| Backend["Backend (FastAPI)"]
     
     subgraph "Backend Services"
         Backend -->|Orquestração| LangChain
-        LangChain -->|Geração de Texto| Gemini[Google Gemini API]
-        LangChain -->|Busca Vetorial| Chroma[ChromaDB (Vector Store)]
-        Backend -->|Agendamento| GCalendar[Google Calendar API]
+        LangChain -->|Geração de Texto| Gemini["Google Gemini API"]
+        LangChain -->|Busca Vetorial| Chroma["ChromaDB (Vector Store)"]
+        Backend -->|Agendamento| GCalendar["Google Calendar API"]
     end
     
     Chroma -->|Contexto de Bulas| Gemini
