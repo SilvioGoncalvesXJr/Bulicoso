@@ -145,6 +145,18 @@ Extensao-3/
 
 ---
 
+## 👥 Time de Desenvolvimento
+
+Projeto desenvolvido por alunos da disciplina de Extensão 3:
+
+*   **[Esterfane Camelo Cardoso]** - *[FrontEnd]*
+*   **[Italo Vicente]** - *[Backend]*
+*   **[Pedro Henrique Nonato]** - *[QA]*
+*   **[Samuel Valente]** - *[UI/UX]*
+*   **[Silvio Gonçalves]** - *[Backend, Gerente de Projeto]*
+
+---
+
 ## 🤝 Contribuição
 
 Este é um projeto acadêmico open-source. Sinta-se à vontade para abrir Issues ou Pull Requests para melhorias.
