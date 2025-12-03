@@ -60,9 +60,9 @@ graph TD
 *   **Linguagem:** [TypeScript](https://www.typescriptlang.org/) - Tipagem estática para segurança.
 *   **Estilização:** CSS Modules / Tailwind (conforme implementação).
 
-### DevOps
-*   **Containerização:** Docker & Docker Compose.
-
+### GitOps
+*   **CI:** GitHub Actions. 
+*   Por questões de organização, dividimos o projeto em dois repositórios: um dedicado ao backend e outro ao frontend. Entretanto, para facilitar a integração e o controle das versões, configuramos um fluxo no GitHub Actions que sincroniza automaticamente as atualizações do frontend (https://github.com/esterfanecamelo/Bulicoso_frontEnd) com o repositório principal do projeto.
 ---
 
 ## 🚀 Como Executar o Projeto
@@ -122,19 +122,6 @@ graph TD
     npm run dev
     ```
     *   O Frontend rodará geralmente em: `http://localhost:5173`
-
----
-
-## 🐳 Executando com Docker (Recomendado)
-
-Para subir todo o ambiente (Backend + Frontend) de uma vez:
-
-1.  Certifique-se de ter o arquivo `.env` configurado na pasta `Backend`.
-2.  Na raiz do projeto (ou dentro de `Backend` se o docker-compose estiver lá), execute:
-
-```bash
-docker-compose up --build
-```
 
 ---
 
