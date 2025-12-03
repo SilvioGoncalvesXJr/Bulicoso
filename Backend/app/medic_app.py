@@ -21,7 +21,7 @@ if not GOOGLE_API_KEY:
 
 # === CONFIGURAÇÕES GLOBAIS ===
 TZ_SAO_PAULO = pytz.timezone("America/Sao_Paulo")
-DB_DIR = "./chroma_bulas_local"
+DB_DIR = "modules/chroma_bulas_local"
 COLLECTION_NAME = "bulas_local"
 MIN_CONFIDENCE_THRESHOLD = 0.6
 RAG_TOP_K = 2
@@ -108,7 +108,7 @@ def query_rag_reactions(medicamento_nome: str, vectordb: Chroma) -> str:
     except Exception as e:
         return f"[ERRO RAG] Falha ao inicializar Gemini para RAG: {e}"
 
-    query = f"Quais são as reações adversas {medicamento_nome}?"
+    query = f"Quais são as reações adversas da {medicamento_nome}?"
 
     docs_with_scores = vectordb.similarity_search_with_relevance_scores(
         query, k=RAG_TOP_K
