@@ -107,8 +107,9 @@ graph TD
     ```
 
 4.  Configure as variáveis de ambiente:
-    *   Copie o arquivo de exemplo: `cp .env.example .env`
+    *   Copie o arquivo de exemplo e o renomeie para .env: `cp .env.example .env`
     *   Edite o `.env` com suas chaves (`GOOGLE_API_KEY`, `GOOGLE_CLIENT_ID`, etc).
+    *   Deve ser incluido no diretório backend/app/modules
 
 5.  Adicione o arquivo de credenciais:
     *   Crie o arquivo `credentials.json`, para poder se conectar ao Google Calendário.
