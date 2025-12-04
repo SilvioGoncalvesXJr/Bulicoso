@@ -44,3 +44,7 @@ dist/
 "Backend/app/token.pickle" 
 "**/*.pickle" 
 "**/credentials*.json" 
+"Backend/credentials.json" 
+"Backend/app/token.pickle" 
+".env" 
+"*.pickle" 
