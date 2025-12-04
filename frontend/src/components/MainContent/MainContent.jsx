@@ -117,15 +117,28 @@ export default function MainContent() {
 
   // --- AGENDAMENTO ---
   const handleConfirmSchedule = async () => {
-      if(!scheduleData.instrucao) return;
-      setShowScheduleForm(false);
-      setLoading(true);
-      try {
-          const res = await api.scheduleTreatment(scheduleData.instrucao, scheduleData.inicio);
-          setMessages(prev => [...prev, { role: 'bot', text: `✅ Agendado! ${res.message}` }]);
-      } catch { setMessages(prev => [...prev, { role: 'bot', text: "Erro ao agendar." }]); }
-      finally { setLoading(false); setScheduleData({ instrucao: "", inicio: "agora" }); }
-  };
+  if(!scheduleData.instrucao) return;
+  setShowScheduleForm(false);
+  setLoading(true);
+
+  try {
+    const res = await api.scheduleTreatment(scheduleData.instrucao, scheduleData.inicio);
+
+    // Aqui está a proteção
+    if (!res || res.error || !res.message) {
+      setMessages(prev => [...prev, { role: 'bot', text: "❌ Erro ao agendar: dados inválidos." }]);
+      return;
+    }
+
+    setMessages(prev => [...prev, { role: 'bot', text: `✅ Agendado! ${res.message}` }]);
+
+  } catch (err) {
+    setMessages(prev => [...prev, { role: 'bot', text: "❌ Erro ao agendar (problema no servidor)." }]);
+  } finally {
+    setLoading(false);
+    setScheduleData({ instrucao: "", inicio: "agora" });
+  }
+};
 
   // --- CANCELAMENTO ---
   const handleConfirmCancel = async () => {
@@ -146,7 +159,7 @@ export default function MainContent() {
       setLoading(true);
       try {
           const res = await api.editEvent(selectedEventIds[0], editNewTime);
-          setMessages(prev => [...prev, { role: 'bot', text: `✅ Editado! Novo horário: ${res.start_time}` }]);
+          setMessages(prev => [...prev, { role: 'bot', text: `✅ Editado com sucesso!` }]);
       } catch (e) {
           setMessages(prev => [...prev, { role: 'bot', text: `Erro ao editar: ${e.message}` }]);
       }
@@ -167,7 +180,7 @@ export default function MainContent() {
   return (
     <div className="main-container">
       <header className="main-header">
-        <h1 className="welcome">Bem vindo, Paulo</h1>
+        <h1 className="welcome">Bem vindo, Italo</h1>
         <p className="subtitle">Assistente Inteligente de Medicação</p>
       </header>
 

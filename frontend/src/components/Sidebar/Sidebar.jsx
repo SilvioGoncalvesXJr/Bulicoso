@@ -5,7 +5,7 @@ export default function Sidebar() {
   return (
     <aside className="sidebar">
       <div className="sidebar-top">
-        <h2 className="user-name">Paulo Henrique</h2>
+        <h2 className="user-name">Italo Lindo</h2>
       </div>
    
       <nav className="nav-section">      
