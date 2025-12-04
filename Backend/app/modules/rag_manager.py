@@ -14,7 +14,7 @@ import json
 DB_DIR = "./modules/chroma_bulas_local"
 COLLECTION_NAME = "bulas_local"
 RAG_TOP_K = 5
-MIN_CONFIDENCE_THRESHOLD = 0.55
+MIN_CONFIDENCE_THRESHOLD = 0.6
 
 # Seu template de prompt RAG
 RAG_PROMPT_TEMPLATE = """
@@ -32,7 +32,7 @@ Instruções para a resposta (formato JSON):
 1.  **answer (string)**:
     * Extraia a resposta diretamente do contexto para responder à pergunta, pense e fale algo que faz sentido de acordo com o contexto.
     * **Se o contexto contiver qualquer informação relevante** (mesmo que parcial, como uma menção em 'Interações'), **apresente essa informação.**
-    * Se o contexto não contiver NENHUMA informação relevante para a pergunta, responda EXATAMENTE: "NOT_FOUND"
+    * Se o contexto não contiver NENHUMA informação relevante para a pergunta, responda EXATAMENTE sobre as reações alérgicas do medicamento com seus conhecimentos gerais
 
 2. **confidence**:
     * Quero o nível de confiança de 0 a 1.
