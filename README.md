@@ -83,7 +83,7 @@ graph TD
 *   **Python 3.11+**
 *   **Node.js 18+**
 *   **Chave de API do Google Gemini**
-*   **Credenciais OAuth2 do Google** (para o Calendar)
+*   **Credenciais OAuth2 do Google** (arquivo `credentials.json` para o Calendar)
 
 ### 1. Configuração do Backend
 
@@ -110,7 +110,11 @@ graph TD
     *   Copie o arquivo de exemplo: `cp .env.example .env`
     *   Edite o `.env` com suas chaves (`GOOGLE_API_KEY`, `GOOGLE_CLIENT_ID`, etc).
 
-5.  Execute o servidor:
+5.  Adicione o arquivo de credenciais:
+    *   Crie o arquivo `credentials.json` com suas credenciais do Google, para poder se conectar ao Google Calendário.
+    *   Salve-o na raiz da pasta `Backend/`.
+
+6.  Execute o servidor:
     ```bash
     uvicorn app.main:app --reload
     ```
