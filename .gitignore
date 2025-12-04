@@ -40,3 +40,7 @@ dist/
 =======
 .env
 >>>>>>> 7a3ece481cc6d91d2062a1f4f3def45a682da283
+"Backend/credentials.json" 
+"Backend/app/token.pickle" 
+"**/*.pickle" 
+"**/credentials*.json" 
