@@ -111,7 +111,7 @@ graph TD
     *   Edite o `.env` com suas chaves (`GOOGLE_API_KEY`, `GOOGLE_CLIENT_ID`, etc).
 
 5.  Adicione o arquivo de credenciais:
-    *   Crie o arquivo `credentials.json` com suas credenciais do Google, para poder se conectar ao Google Calendário.
+    *   Crie o arquivo `credentials.json`, para poder se conectar ao Google Calendário.
     *   Salve-o na raiz da pasta `Backend/`.
 
 6.  Execute o servidor:
