@@ -143,6 +143,13 @@ graph TD
 
 ---
 
+## 📋 Requisitos do Projeto
+Documentação detalhada dos requisitos funcionais e não funcionais do sistema.
+
+*   **[Acessar Requisitos (PDF)](<Documentação/Requisitos/Requisitos - Buliçoso.pdf>)**
+
+---
+
 ## 🧪 Plano de Testes
 O projeto conta com uma documentação dedicada à garantia de qualidade (QA), detalhando as estratégias e casos de teste.
 
@@ -167,7 +174,8 @@ Extensao-3/
 │   └── ...
 ├── Documentação/           # Documentação do Projeto
 │   ├── vivências/          # Relatórios de experiências (Sprints)
-│   └── Plano_de_Testes/    # Planejamento e Casos de Teste
+│   ├── Plano_de_Testes/    # Planejamento e Casos de Teste
+│   └── Requisitos/         # Requisitos do Projeto
 └── README.md               # Documentação Principal
 
 > **Nota:** O diretório `vivências` contém os relatórios das experiências vivenciadas pelo time em cada sprint.
