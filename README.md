@@ -85,14 +85,9 @@ graph TD
 *   **Chave de API do Google Gemini**
 *   **Credenciais OAuth2 do Google** (arquivo `credentials.json` para o Calendar)
 
-### 1. Configuração do Backend
+### 1. Configurações Gerais
 
-1.  Navegue até a pasta do backend:
-    ```bash
-    cd Backend
-    ```
-
-2.  Crie e ative o ambiente virtual:
+1.  Na raiz do projeto, crie e ative o ambiente virtual:
     ```bash
     python -m venv venv
     # Windows
@@ -101,28 +96,31 @@ graph TD
     source venv/bin/activate
     ```
 
-3.  Instale as dependências:
+2.  Instale as dependências:
     ```bash
     pip install -r requirements.txt
     ```
 
-4.  Configure as variáveis de ambiente:
+### 2. Configuração do Backend
+
+1.  Configure as variáveis de ambiente:
     *   Copie o arquivo de exemplo e o renomeie para .env: `cp .env.example .env`
     *   Edite o `.env` com sua chave (`GOOGLE_API_KEY`).
     *   Deve ser incluido tanto no diretório `Backend/app` e `Backend/app/modules`
 
-5.  Adicione o arquivo de credenciais:
+2.  Adicione o arquivo de credenciais:
     *   Crie o arquivo `credentials.json`, para poder se conectar ao Google Calendário.
     *   Salve-o na raiz da pasta `Backend/app`.
 
-6.  Execute o servidor:
+3.  Execute o servidor:
     ```bash
+    cd Backend
     uvicorn app.main:app --reload
     ```
     *   O Backend rodará em: `http://localhost:8000`
     *   Documentação Swagger: `http://localhost:8000/docs`
 
-### 2. Configuração do Frontend
+### 3. Configuração do Frontend
 
 1.  Navegue até a pasta do frontend:
     ```bash
