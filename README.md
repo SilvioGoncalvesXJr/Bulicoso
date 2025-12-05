@@ -108,7 +108,7 @@ graph TD
 
 4.  Configure as variáveis de ambiente:
     *   Copie o arquivo de exemplo e o renomeie para .env: `cp .env.example .env`
-    *   Edite o `.env` com suas chaves (`GOOGLE_API_KEY`, `GOOGLE_CLIENT_ID`, etc).
+    *   Edite o `.env` com sua chave (`GOOGLE_API_KEY`).
     *   Deve ser incluido no diretório backend/app/modules
 
 5.  Adicione o arquivo de credenciais:
