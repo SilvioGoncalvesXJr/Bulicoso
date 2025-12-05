@@ -132,6 +132,7 @@ graph TD
 2.  Instale as dependências:
     ```bash
     npm install
+    npm install react-router-dom
     ```
 
 3.  Execute o servidor de desenvolvimento:
@@ -157,7 +158,10 @@ Extensao-3/
 │   ├── src/
 │   ├── package.json
 │   └── ...
+├── vivências/              # Relatórios de experiências (Sprints)
 └── README.md               # Documentação Principal
+
+> **Nota:** O diretório `vivências` contém os relatórios das experiências vivenciadas pelo time em cada sprint.
 ```
 
 ## 🤝 Contribuição
