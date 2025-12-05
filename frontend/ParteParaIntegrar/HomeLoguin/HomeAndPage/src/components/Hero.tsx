@@ -147,7 +147,7 @@ export function Hero({ onCTAClick }: HeroProps) {
             data-name="Top Part"
           >
             <div className="content-stretch flex flex-col gap-[6px] items-center not-italic relative shrink-0 text-center w-full" data-name="Page Title Wrapper">
-              <p className="font-['Inter:Medium',sans-serif] font-medium leading-[1.3] relative shrink-0 text-[#19213d] text-[22px] text-nowrap whitespace-pre">Bem vindo</p>
+              <p className="font-['Inter:Medium',sans-serif] font-medium leading-[1.3] relative shrink-0 text-[#19213d] text-[22px] text-nowrap whitespace-pre">Olá! Sou Buliçoso, seu Assistente de Saúde Virtual!</p>
               <p className="font-['Inter:Regular',sans-serif] font-normal leading-[1.5] min-w-full relative shrink-0 text-[#666f8d] text-[14px] w-[min-content]"></p>
             </div>
             <div className="box-border content-stretch flex flex-col items-end pb-px pt-0 px-0 relative shrink-0 w-full" data-name="Prompt Box">

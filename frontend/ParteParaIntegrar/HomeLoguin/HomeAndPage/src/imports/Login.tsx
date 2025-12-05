@@ -45,7 +45,6 @@ export default function Login() {
           <p className="leading-none">Nossa plataforma garante uma experiência protegida, livre de spam e com segurança Premium. Nós deixe lhe ajudar.</p>
         </div>
         <div className="absolute flex flex-col font-['Inter:Regular',sans-serif] font-normal h-[30px] justify-end leading-[0] left-[1525px] not-italic text-[#1e1e1e] text-[16px] text-center top-[993px] tracking-[-0.4px] translate-x-[-50%] translate-y-[-100%] w-[468px]">
-          <p className="leading-none">XXXXXXXXXXXXXXXXXXXXX</p>
         </div>
         <div className="[text-shadow:rgba(0,0,0,0.25)_0px_4px_4px] absolute flex flex-col font-['Inter:Regular',sans-serif] font-normal h-[30px] justify-end leading-[0] left-[1291px] not-italic text-[16px] text-black top-[1023px] tracking-[-0.4px] translate-y-[-100%] w-[468px]">
           <p className="leading-none">

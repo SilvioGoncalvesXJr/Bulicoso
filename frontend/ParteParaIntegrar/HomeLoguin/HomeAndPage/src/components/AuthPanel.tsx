@@ -24,7 +24,8 @@ export function AuthPanel({ onGoogleLogin }: AuthPanelProps) {
         transition={{ duration: 0.8, delay: 0.3 }}
         className="flex flex-col font-['Arimo:Regular',sans-serif] font-normal leading-[1.5] text-[#1e1e1e] text-[1.25vw] tracking-[-0.5px]"
       >
-        <p className="mb-0">Nossa plataforma garante uma experiência protegida, livre de spam e com segurança Premium. Nós deixe lhe ajudar.</p>
+        <p className="mb-0">
+          </p>
       </motion.div>
       <motion.div 
         initial={{ opacity: 0, y: -10 }}
@@ -41,7 +42,6 @@ export function AuthPanel({ onGoogleLogin }: AuthPanelProps) {
         transition={{ duration: 0.8, delay: 0.8 }}
         className="flex flex-col font-['Inter:Regular',sans-serif] font-normal leading-[1.5] not-italic text-[#1e1e1e] text-[1vw] text-center tracking-[-0.4px] mt-[4vh]"
       >
-        <p className="mb-0">XXXXXXXXXXXXXXXXXXXXX</p>
       </motion.div>
       <motion.div 
         initial={{ opacity: 0 }}
