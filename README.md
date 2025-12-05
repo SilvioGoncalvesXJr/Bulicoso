@@ -109,11 +109,11 @@ graph TD
 4.  Configure as variáveis de ambiente:
     *   Copie o arquivo de exemplo e o renomeie para .env: `cp .env.example .env`
     *   Edite o `.env` com sua chave (`GOOGLE_API_KEY`).
-    *   Deve ser incluido no diretório backend/app/modules
+    *   Deve ser incluido tanto no diretório `Backend/app` e `Backend/app/modules`
 
 5.  Adicione o arquivo de credenciais:
     *   Crie o arquivo `credentials.json`, para poder se conectar ao Google Calendário.
-    *   Salve-o na raiz da pasta `Backend/`.
+    *   Salve-o na raiz da pasta `Backend/app`.
 
 6.  Execute o servidor:
     ```bash
@@ -165,7 +165,9 @@ Extensao-3/
 │   ├── app/
 │   │   ├── api/            # Endpoints (Rotas)
 │   │   ├── core/           # Configurações
-│   │   ├── services/       # Lógica de Negócio (RAG, Calendar)
+│   │   ├── db/             # Configurações de Banco de Dados
+│   │   ├── modules/        # Módulos Principais (RAG, Calendar)
+│   │   ├── services/       # Lógica de Negócio
 │   │   └── ...
 │   └── requirements.txt
 ├── frontend/               # Interface do Usuário
