@@ -11,10 +11,10 @@ from langchain_core.prompts import PromptTemplate
 import json
 
 # Suas configurações globais do RAG
-DB_DIR = "./chroma_bulas_local"
+DB_DIR = "./modules/chroma_bulas_local"
 COLLECTION_NAME = "bulas_local"
 RAG_TOP_K = 5
-MIN_CONFIDENCE_THRESHOLD = 0.55
+MIN_CONFIDENCE_THRESHOLD = 0.6
 
 # Seu template de prompt RAG
 RAG_PROMPT_TEMPLATE = """
@@ -32,7 +32,7 @@ Instruções para a resposta (formato JSON):
 1.  **answer (string)**:
     * Extraia a resposta diretamente do contexto para responder à pergunta, pense e fale algo que faz sentido de acordo com o contexto.
     * **Se o contexto contiver qualquer informação relevante** (mesmo que parcial, como uma menção em 'Interações'), **apresente essa informação.**
-    * Se o contexto não contiver NENHUMA informação relevante para a pergunta, responda EXATAMENTE: "NOT_FOUND"
+    * Se o contexto não contiver NENHUMA informação relevante para a pergunta, responda EXATAMENTE sobre as reações alérgicas do medicamento com seus conhecimentos gerais
 
 2. **confidence**:
     * Quero o nível de confiança de 0 a 1.
@@ -93,7 +93,7 @@ class RAGManager:
         if self.vectordb is None:
             return {"error": "Banco RAG não inicializado."}
 
-        query = f"Quais são as reações adversas da {medicamento}?"
+        query = medicamento
         print(f"[RAG] Executando consulta: '{query}'")
 
         docs_with_scores = self.vectordb.similarity_search_with_relevance_scores(
@@ -137,7 +137,7 @@ class RAGManager:
                     # Remove primeira linha (```json) e última (```)
                     raw_text = re.sub(r"^```[a-zA-Z]*\n", "", raw_text)
                     raw_text = re.sub(r"\n```$", "", raw_text)
-                
+
                 # Tentar limpar a resposta do LLM para garantir que é só o JSON
                 json_match = re.search(r"\{.*\}", raw_text, re.DOTALL)
                 if json_match:
@@ -162,7 +162,7 @@ class RAGManager:
                 prompt = self.prompt_template.format(context_chunks=context_str, question=query)
                 resp = self.llm_rag.invoke(prompt)
                 raw_text = resp.content
-                
+
                 # Limpar markdown code blocks se houver
                 raw_text = raw_text.strip()
                 if raw_text.startswith("```"):
@@ -185,7 +185,7 @@ class RAGManager:
                         raw_text = json.dumps(response_json, ensure_ascii=False)
                 except Exception as json_err:
                     print(f"[RAG AVISO] Falha ao injetar confiança no JSON: {json_err}")
-                    # Se falhar o parse, mantemos o raw_text original do LLM, 
+                    # Se falhar o parse, mantemos o raw_text original do LLM,
                     # mas a confiança externa (do return) estará correta.
 
             except Exception as e:
@@ -202,12 +202,12 @@ class RAGManager:
         return {"query": query, "response": raw_text, "confidence": confidence, "time_sec": elapsed}
 
 if __name__ == "__main__":
-    load_dotenv()
+    load_dotenv(".env", override=True)
     api_key = os.getenv("GOOGLE_API_KEY")
     if not api_key:
         print("Erro: GOOGLE_API_KEY não encontrada no .env")
     else:
         rag = RAGManager(google_api_key=api_key)
         # Teste com um medicamento comum
-        result = rag.query("CLORIDRATO DE IMIPRAMINA", "reações adversas")
+        result = rag.query("Quais são as reações da DIPIRONA SODICA", "reações adversas")
         print(json.dumps(result, indent=2, ensure_ascii=False))

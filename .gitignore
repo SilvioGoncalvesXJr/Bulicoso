@@ -16,6 +16,7 @@ env/
 .env
 ./Backend/app/credentials.json
 ./token.pickle
+./credentials.json
 
 # 🧰 IDEs
 .vscode/
