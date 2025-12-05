@@ -143,6 +143,13 @@ graph TD
 
 ---
 
+## 🧪 Plano de Testes
+O projeto conta com uma documentação dedicada à garantia de qualidade (QA), detalhando as estratégias e casos de teste.
+
+*   **[Acessar Plano de Testes (PDF)](<Plano_de_Testes/Plano de Testes do Buliçoso.docx.pdf>)**
+
+---
+
 ## 📁 Estrutura de Pastas
 
 ```
@@ -159,6 +166,7 @@ Extensao-3/
 │   ├── package.json
 │   └── ...
 ├── vivências/              # Relatórios de experiências (Sprints)
+├── Plano_de_Testes/        # Planejamento e Casos de Teste
 └── README.md               # Documentação Principal
 
 > **Nota:** O diretório `vivências` contém os relatórios das experiências vivenciadas pelo time em cada sprint.
