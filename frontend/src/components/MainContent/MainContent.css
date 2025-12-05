@@ -146,6 +146,26 @@ html, body, #root {
   .cards-container { justify-content: center; }
 }
 
+.logout-btn {
+    margin-left: 1100px;
+    background-color: #e57373;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+    /* Se o header estiver bem configurado, não precisa de margin-left */
+}
+
+HTML
+{/* --- BOTÃO DE LOGOUT ADICIONADO AQUI --- */}
+        <button className="logout-btn" onClick={handleLogout}>
+            Sair 🚪
+        </button>
+{/* -------------------------------------- */}
+
 /* Custom Scrollbar Horizontal */
 .cards-container::-webkit-scrollbar { height: 4px; }
 .cards-container::-webkit-scrollbar-track { background: transparent; }
