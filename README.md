@@ -12,10 +12,10 @@ Utilizando o poder da Inteligência Artificial Generativa (**Google Gemini**) e 
 
 Projeto desenvolvido por alunos da disciplina de Extensão 3:
 
-*   **[Esterfane Camelo Cardoso]** - *[FrontEnd]*
+*   **[Esterfane Camelo Cardoso]** - *[Frontend]*
 *   **[Italo Vicente]** - *[Backend]*
-*   **[Pedro Henrique Nonato]** - *[QA]*
-*   **[Samuel Valente]** - *[UI/UX]*
+*   **[Pedro Henrique Nonato]** - *[Frontend, QA]*
+*   **[Samuel Valente]** - *[Frontend, UI/UX]*
 *   **[Silvio Gonçalves]** - *[PO, Backend]*
 
 ---
