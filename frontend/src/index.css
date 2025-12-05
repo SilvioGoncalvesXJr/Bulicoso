@@ -24,10 +24,9 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  /* allow normal document flow so long pages (Figma export) can scroll */
 }
 
 h1 {
@@ -65,4 +64,36 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+/* Overrides to ensure Figma-exported decorative layers don't block interaction
+   and the document can scroll normally. These are defensive rules applied
+   because the exported layout uses many absolute SVG/decorative elements. */
+html, body, #root {
+  height: auto !important;
+  min-height: 100% !important;
+  overflow: auto !important;
+}
+
+/* Make sure decorative SVGs / mask layers don't capture pointer events */
+.mask-alpha,
+.mask-intersect,
+.filter,
+.blur-\[80\.897px\] > svg,
+.absolute > svg {
+  pointer-events: none !important;
+}
+
+/* Ensure interactive panels and prompt box are on top and receive clicks */
+[data-name="Prompt Box"],
+[data-name="Top Part"],
+[data-name="Page Title Wrapper"],
+.content-stretch .bg-white {
+  pointer-events: auto !important;
+  z-index: 9999;
+}
+
+/* Make sure buttons and links are clickable even if there are overlays */
+button, a, input {
+  pointer-events: auto !important;
 }

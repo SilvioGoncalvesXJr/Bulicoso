@@ -1,9 +1,44 @@
-// O endereço onde o back ta rodando
-const API_URL = "http://127.0.0.1:8000/v1";
+const BASE_URL = "http://127.0.0.1:8000";
+
+// URL para os endpoints da API (v1) - Para chat, rag, calendar
+const API_URL = `${BASE_URL}/v1`;
 
 export const api = {
 
-  // 1. O CÉREBRO: Classifica o que o usuário quer dizer
+  // ============================================================
+  // AUTENTICAÇÃO
+  // ============================================================
+
+  // 1. LOGIN GOOGLE: Redireciona o usuário para o endpoint de OAuth
+  // Isso tira o usuário da aplicação React e o leva para o fluxo do Google.
+  // IMPORTANTE: O seu Back-end deve estar configurado para redirecionar
+  // de volta para o Front-end (/chat) após o login ser concluído com sucesso.
+  loginGoogle: () => {
+    window.location.href = `${BASE_URL}/auth/login`;
+  },
+
+  logout: async () => {
+    const response = await fetch(`${BASE_URL}/auth/logout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // Adicione o token aqui se sua API exigir autenticação via Header
+        // 'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erro ao realizar logout: ${response.statusText}`);
+    }
+
+    return true; // Retorna true indicando que o back-end processou a saída
+  },
+
+  // ============================================================
+  // CHATBOT & INTENÇÃO
+  // ============================================================
+
+  // 2. O CÉREBRO: Classifica o que o usuário quer dizer
   classifyIntent: async (text) => {
     try {
       const response = await fetch(`${API_URL}/chat/classify_intent`, {
@@ -22,7 +57,7 @@ export const api = {
     }
   },
 
-  // 2. O RAG: Consulta a bula do medicamento
+  // 3. O RAG: Consulta a bula do medicamento
   queryRag: async (originalQuery, topic) => {
     try {
       const response = await fetch(`${API_URL}/rag/query`, {
@@ -40,12 +75,15 @@ export const api = {
       return await response.json();
     } catch (error) {
       console.error("Erro no RAG:", error);
-      // Retorna um objeto de erro seguro para não quebrar o front
       return { response: JSON.stringify({ answer: "Desculpe, não consegui conectar ao servidor." }) };
     }
   },
 
-  // 3. CALENDAR: Agendar um tratamento
+  // ============================================================
+  // CALENDÁRIO
+  // ============================================================
+
+  // 4. CALENDAR: Agendar um tratamento
   scheduleTreatment: async (instrucao, startTime = "agora") => {
     try {
       const response = await fetch(`${API_URL}/calendar/schedule`, {
@@ -63,7 +101,7 @@ export const api = {
     }
   },
 
-  // 4. CALENDAR: Listar eventos de um medicamento (para edição/cancelamento)
+  // 5. CALENDAR: Listar eventos de um medicamento
   getEvents: async (medicamento) => {
     try {
       const response = await fetch(`${API_URL}/calendar/events/${medicamento}`);
@@ -74,7 +112,7 @@ export const api = {
     }
   },
 
-  // 5. CALENDAR: Deletar eventos
+  // 6. CALENDAR: Deletar eventos
   deleteEvents: async (eventIds) => {
     try {
       const response = await fetch(`${API_URL}/calendar/delete`, {
@@ -89,7 +127,7 @@ export const api = {
     }
   },
 
-  // 6. [NOVO] CALENDAR: Editar um evento
+  // 7. CALENDAR: Editar um evento
   editEvent: async (eventId, newStartTime) => {
     try {
       const response = await fetch(`${API_URL}/calendar/edit/${eventId}`, {

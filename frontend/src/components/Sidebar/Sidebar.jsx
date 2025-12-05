@@ -2,10 +2,15 @@ import React from "react";
 import "./Sidebar.css";
 
 export default function Sidebar() {
+
+  const handleNewChat = () => {
+    window.location.reload();
+  };
+
   return (
     <aside className="sidebar">
       <div className="sidebar-top">
-        <h2 className="user-name">Paulo Henrique</h2>
+        <h2 className="user-name">Ítalo Vicente</h2>
       </div>
    
       <nav className="nav-section">      
@@ -46,7 +51,9 @@ export default function Sidebar() {
         </ul>
       </div>
 
-      <button className="new-chat">＋ Iniciar uma nova conversa</button>
+      <button className="new-chat" onClick={handleNewChat}>
+        ＋ Iniciar uma nova conversa
+      </button>
     </aside>
   );
 }
