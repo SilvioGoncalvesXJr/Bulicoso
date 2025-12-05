@@ -16,7 +16,7 @@ Projeto desenvolvido por alunos da disciplina de Extensão 3:
 *   **[Italo Vicente]** - *[Backend]*
 *   **[Pedro Henrique Nonato]** - *[QA]*
 *   **[Samuel Valente]** - *[UI/UX]*
-*   **[Silvio Gonçalves]** - *[Backend, Gerente de Projeto]*
+*   **[Silvio Gonçalves]** - *[PO, Backend]*
 
 ---
 
