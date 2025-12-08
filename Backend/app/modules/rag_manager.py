@@ -54,7 +54,7 @@ class RAGManager:
                 embedding_function=self.embedding_func
             )
             self.llm_rag = ChatGoogleGenerativeAI(
-                model="gemini-2.5-pro",
+                model="gemini-2.5-flash",
                 temperature=0.5,
                 google_api_key=google_api_key
             )
