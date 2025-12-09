@@ -5,6 +5,7 @@ beautifulsoup4
 cachetools==6.2.2
 certifi==2025.11.12
 charset-normalizer==3.4.4
+chromadb
 click==8.3.1
 colorama==0.4.6
 fastapi==0.123.5
@@ -48,6 +49,7 @@ requests==2.32.5
 requests-oauthlib==2.0.0
 requests-toolbelt==1.0.0
 rsa==4.9.1
+sentence-transformers
 starlette==0.50.0
 tenacity==9.1.2
 typing-inspection==0.4.2
