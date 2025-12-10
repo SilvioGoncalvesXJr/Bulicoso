@@ -11,7 +11,11 @@ from langchain_core.prompts import PromptTemplate
 import json
 
 # Suas configurações globais do RAG
-DB_DIR = "./modules/chroma_bulas_local"
+# Resolve o caminho do banco relativo ao arquivo atual (rag_manager.py está em app/modules/)
+# Queremos chegar em app/chroma_bulas_local
+_current_dir = os.path.dirname(os.path.abspath(__file__)) # .../app/modules
+_app_dir = os.path.dirname(_current_dir) # .../app
+DB_DIR = os.path.join(_app_dir, "chroma_bulas_local")
 COLLECTION_NAME = "bulas_local"
 RAG_TOP_K = 5
 MIN_CONFIDENCE_THRESHOLD = 0.6
@@ -209,5 +213,5 @@ if __name__ == "__main__":
     else:
         rag = RAGManager(google_api_key=api_key)
         # Teste com um medicamento comum
-        result = rag.query("Quais são as reações da DIPIRONA SODICA", "reações adversas")
+        result = rag.query("Quais são as reações da ACICLOVIR", "reações adversas")
         print(json.dumps(result, indent=2, ensure_ascii=False))
