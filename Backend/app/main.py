@@ -15,10 +15,10 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import Flow  # <--- [IMPORTANTE] Para o fluxo Web
 
 # NOSSOS MÓDULOS
-from app.google_calendar_auth import get_calendar_service
-from app.modules.rag_manager import RAGManager
-from app.modules.intent_classifier import classify_intent, IntentResponse
-import app.modules.calendar_manager as calendar
+from google_calendar_auth import get_calendar_service
+from modules.rag_manager import RAGManager
+from modules.intent_classifier import classify_intent, IntentResponse
+import modules.calendar_manager as calendar
 
 # Carregar .env
 env_path = os.path.join(os.path.dirname(__file__), ".env")

@@ -13,9 +13,7 @@ import json
 # Suas configurações globais do RAG
 # Resolve o caminho do banco relativo ao arquivo atual (rag_manager.py está em app/modules/)
 # Queremos chegar em app/chroma_bulas_local
-_current_dir = os.path.dirname(os.path.abspath(__file__)) # .../app/modules
-_app_dir = os.path.dirname(_current_dir) # .../app
-DB_DIR = os.path.join(_app_dir, "chroma_bulas_local")
+DB_DIR = "modules/chroma_bulas_local"
 COLLECTION_NAME = "bulas_local"
 RAG_TOP_K = 5
 MIN_CONFIDENCE_THRESHOLD = 0.6
