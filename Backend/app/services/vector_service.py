@@ -23,7 +23,12 @@ from app.core.logger import setup_logger
 logger = setup_logger()
 
 # Configurações locais para garantir compatibilidade com rag_manager.py
-DB_DIR = "./chroma_bulas_local"
+# Configurações locais para garantir compatibilidade com rag_manager.py
+# Resolve o caminho do banco relativo ao arquivo atual (vector_service.py está em app/services/)
+# Queremos chegar em app/chroma_bulas_local
+_current_dir = os.path.dirname(os.path.abspath(__file__)) # .../app/services
+_app_dir = os.path.dirname(_current_dir) # .../app
+DB_DIR = os.path.join(_app_dir, "chroma_bulas_local")
 COLLECTION_NAME = "bulas_local"
 
 class VectorService:

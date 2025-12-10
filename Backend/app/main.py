@@ -15,13 +15,14 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import Flow  # <--- [IMPORTANTE] Para o fluxo Web
 
 # NOSSOS MÓDULOS
-from google_calendar_auth import get_calendar_service
-from modules.rag_manager import RAGManager
-from modules.intent_classifier import classify_intent, IntentResponse
-import modules.calendar_manager as calendar
+from app.google_calendar_auth import get_calendar_service
+from app.modules.rag_manager import RAGManager
+from app.modules.intent_classifier import classify_intent, IntentResponse
+import app.modules.calendar_manager as calendar
 
 # Carregar .env
-load_dotenv(".env", override=True)
+env_path = os.path.join(os.path.dirname(__file__), ".env")
+load_dotenv(env_path, override=True)
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 if not GOOGLE_API_KEY:
